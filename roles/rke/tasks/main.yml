@@ -113,6 +113,8 @@
     groups: docker
     append: yes
   when: inventory_hostname != "admin"
+  become: true
+  become_user: "{{ my_user }}"
 
 
 - name: Adiciona Usuario admincluster ao grupo wheel
@@ -121,6 +123,8 @@
     shell: /bin/bash
     groups: wheel
     append: yes
+  become: true
+  become_user: "{{ my_user }}"
 
 
 - name: Baixando o rke para subir o cluster
@@ -128,11 +132,15 @@
   with_items:
     - wget -O rke https://github.com/rancher/rke/releases/download/v0.0.8-dev/rke_linux-amd64
     -  chmod +x /usr/local/bin/rke
-  when: inventory_hostname == "admin" 
+  when: inventory_hostname == "admin"
+ become: true
+ become_user: "{{ my_user }}"
 
 - name: Cria o cluster
   shell: /usr/local/bin/rke rke up --config ./rancher-cluster.yml
   when: inventory_hostname == "admin"
+  become: true
+  become_user: "{{ my_user }}"
 
 
 - name: Variavel de acesso ao cluster
@@ -145,5 +153,7 @@
     - chmod 700 get_helm.sh
     - ./get_helm.sh
   when: inventory_hostname == "admin"
+  become: true
+  become_user: "{{ my_user }}"
 
 

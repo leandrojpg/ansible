@@ -112,6 +112,7 @@
     shell: /bin/bash
     groups: docker
     append: yes
+  when: inventory_hostname != "admin"
 
 
 - name: Adiciona Usuario admincluster ao grupo wheel

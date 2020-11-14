@@ -1,15 +1,35 @@
 ---
+- name: Adiciona usuario para administrar cluster
+  user:
+    name: admincluster
+    comment: Admin k8s
+
+#- name: Define senha do usuario (Tem que ser um hash e preciso usar o python para gerar o Hash)
+#  user:
+#    name: admincluster
+#    comment: "Admin k8s"
+#    password: $6$INxDHuVqvGzKOB90$f2CjwN4jDwq1OLspYU2jhuY34aTOzvlWpejEftggwhaIG7hHgIc/ze.ohF3tu4Rxj77EmK9eo0CgurHrBZqTy0
+
+#- name: Adiciona usuario sudoers
+#  copy:
+#    dest: "/etc/sudoers.d/admincluster"
+#    content: |
+#      admincluster ALL=(ALL:ALL) NOPASSWD: ALL
+#  when: inventory_hostname != "admin"
+
+
 - name: Atualiza SO de todos os Nodes
   yum:
     name: '*'
     state: latest
+  tags:
+  - update
 
 - name: Instalar Pacote Chrony NTP
   yum: 
     name: "{{ packages }}"
     state: latest
-
-
+  
 - name: Adiciona as linhas dos enderecos de ntp
   command: sed -i -e '3 iserver 0.pool.ntp.org iburst' -e '3 iserver 1.pool.ntp.org iburst' /etc/chrony.conf
 
@@ -70,26 +90,6 @@
     - swapoff -a
     - touch /etc/sudoers.d/admincluster
     - sysctl --system
-  when: inventory_hostname != "admin"
-
-
-- name: Adiciona usuario para administrar cluster
-  user:
-    name: admincluster
-    comment: Admin k8s
-
-- name: Define senha do usuario (Tem que ser um hash e preciso usar o python para gerar o Hash)
-  user:
-    name: admincluster
-    comment: "Admin k8s"
-    password: $6$INxDHuVqvGzKOB90$f2CjwN4jDwq1OLspYU2jhuY34aTOzvlWpejEftggwhaIG7hHgIc/ze.ohF3tu4Rxj77EmK9eo0CgurHrBZqTy0
-
-
-- name: Adiciona usuario sudoers
-  copy:
-    dest: "/etc/sudoers.d/admincluster"
-    content: |
-      admincluster ALL=(ALL:ALL) NOPASSWD: ALL
   when: inventory_hostname != "admin"
 
 

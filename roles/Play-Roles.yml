@@ -1,0 +1,6 @@
+- name: Executa as Roles
+  hosts: all
+  gather_facts: no
+  roles:
+      - rke
+

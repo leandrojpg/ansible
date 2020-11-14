@@ -1,21 +1,31 @@
 ---
+- name: Parametrização de SO para o K8s
+  command: "{{ item }}"
+  with_items:
+    - sed -i.bak -r 's/(.+ swap .+)/#\1/' /etc/fstab
+    - sed -i.bak -r 's/(.+ swap .+)/#\1/' /etc/fstab
+    - swapoff -a
+    - touch /etc/sudoers.d/admincluster
+    - sysctl --system
+  when: inventory_hostname != "admin"
+
 - name: Adiciona usuario para administrar cluster
   user:
     name: admincluster
     comment: Admin k8s
 
-#- name: Define senha do usuario (Tem que ser um hash e preciso usar o python para gerar o Hash)
-#  user:
-#    name: admincluster
-#    comment: "Admin k8s"
-#    password: $6$INxDHuVqvGzKOB90$f2CjwN4jDwq1OLspYU2jhuY34aTOzvlWpejEftggwhaIG7hHgIc/ze.ohF3tu4Rxj77EmK9eo0CgurHrBZqTy0
+- name: Define senha do usuario (Tem que ser um hash e preciso usar o python para gerar o Hash)
+  user:
+    name: admincluster
+    comment: "Admin k8s"
+    password: $6$INxDHuVqvGzKOB90$f2CjwN4jDwq1OLspYU2jhuY34aTOzvlWpejEftggwhaIG7hHgIc/ze.ohF3tu4Rxj77EmK9eo0CgurHrBZqTy0
 
-#- name: Adiciona usuario sudoers
-#  copy:
-#    dest: "/etc/sudoers.d/admincluster"
-#    content: |
-#      admincluster ALL=(ALL:ALL) NOPASSWD: ALL
-#  when: inventory_hostname != "admin"
+- name: Adiciona usuario sudoers
+  copy:
+    dest: "/etc/sudoers.d/admincluster"
+    content: |
+      admincluster ALL=(ALL:ALL) NOPASSWD: ALL
+  when: inventory_hostname != "admin"
 
 
 - name: Atualiza SO de todos os Nodes
@@ -82,17 +92,6 @@
 #      net.bridge.bridge-nf-call-iptables = 1
 
 
-- name: Parametrização de SO para o K8s
-  command: "{{ item }}"
-  with_items:
-    - sed -i.bak -r 's/(.+ swap .+)/#\1/' /etc/fstab
-    - sed -i.bak -r 's/(.+ swap .+)/#\1/' /etc/fstab
-    - swapoff -a
-    - touch /etc/sudoers.d/admincluster
-    - sysctl --system
-  when: inventory_hostname != "admin"
-
-
 
 - name: Cria chave ssh do admin do cluster (adminclsuter)
   user:
@@ -113,8 +112,11 @@
     groups: docker
     append: yes
   when: inventory_hostname != "admin"
-  become: true
-  become_user: "{{ my_user }}"
+  sudo: yes
+  sudo_user: admincluster
+
+#  become: true
+#  become_user: "{{ my_user }}"
 
 
 - name: Adiciona Usuario admincluster ao grupo wheel
@@ -123,8 +125,8 @@
     shell: /bin/bash
     groups: wheel
     append: yes
-  become: true
-  become_user: "{{ my_user }}"
+#  become: true
+#  become_user: "{{ my_user }}"
 
 
 - name: Baixando o rke para subir o cluster
@@ -133,14 +135,14 @@
     - wget -O rke https://github.com/rancher/rke/releases/download/v0.0.8-dev/rke_linux-amd64
     -  chmod +x /usr/local/bin/rke
   when: inventory_hostname == "admin"
- become: true
- become_user: "{{ my_user }}"
+#  become: true
+#  become_user: "{{ my_user }}"
 
 - name: Cria o cluster
   shell: /usr/local/bin/rke rke up --config ./rancher-cluster.yml
   when: inventory_hostname == "admin"
-  become: true
-  become_user: "{{ my_user }}"
+#  become: true
+#  become_user: "{{ my_user }}"
 
 
 - name: Variavel de acesso ao cluster
@@ -153,7 +155,7 @@
     - chmod 700 get_helm.sh
     - ./get_helm.sh
   when: inventory_hostname == "admin"
-  become: true
-  become_user: "{{ my_user }}"
+ # become: true
+ # become_user: "{{ my_user }}"
 
 

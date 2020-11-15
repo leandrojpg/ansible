@@ -1,16 +1,17 @@
 ---
 - name: Parametrização de SO para o K8s
   command: "{{ item }}"
+  become: yes
   with_items:
     - sed -i.bak -r 's/(.+ swap .+)/#\1/' /etc/fstab
     - sed -i.bak -r 's/(.+ swap .+)/#\1/' /etc/fstab
     - swapoff -a
     - touch /etc/sudoers.d/admincluster
     - sysctl --system
-  when: inventory_hostname != "admin"
 
 
 - name: Permite grupo Wheel sem senha
+  become: yes
   lineinfile:
     dest: /etc/sudoers
     state: present
@@ -54,6 +55,7 @@
 
 
 - name: Define senha do usuario (Tem que ser um hash e preciso usar o python para gerar o Hash)
+  become: yes
   user:
     name: admincluster
     comment: "Admin k8s"
@@ -80,6 +82,7 @@
     state: latest
   
 - name: Adiciona as linhas dos enderecos de ntp
+  become: yes
   command: sed -i -e '3 iserver 0.pool.ntp.org iburst' -e '3 iserver 1.pool.ntp.org iburst' /etc/chrony.conf
 
 
@@ -119,7 +122,6 @@
     content: |
       net.bridge.bridge-nf-call-ip6tables = 1
       net.bridge.bridge-nf-call-iptables = 1
-  when: inventory_hostname != "admin"
   
 
 
@@ -142,7 +144,7 @@
 
 - name: Instalando Docker
   shell: curl https://releases.rancher.com/install-docker/18.09.sh | sh
-  when: inventory_hostname != "admin"
+  when: inventory_hostname != "192.168.1.19"
 
 - name: Adiciona Usuario admincluster ao grupo docker
   user:
@@ -150,8 +152,6 @@
     shell: /bin/bash
     groups: docker
     append: yes
-  when: inventory_hostname != "admin"
-
 
 #- name: Baixando o rke para subir o cluster
 #  command: "{{ item }}"
@@ -163,19 +163,20 @@
 #  become_user: "{{ my_user }}"
 
 - name: Cria o cluster
-  shell: /usr/local/bin/rke  up --config /home/admincluster/cluster.yml
-  when: inventory_hostname != "192.168.1.19"
+#  when: inventory_hostname == "192.168.1.19"
+  become: yes
+  run_once: true
+  delegate_to: 127.0.0.1
+  local_action: command chdir= rke  up --config /home/admincluster/cluster.yml
 
 
-- name: Variavel de acesso ao cluster
-  command: "{{ item }}"
-  with_items:
-    - export KUBECONFIG=/home/admincluster/kube_config_cluster.yml
-    - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
-    - curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
-    - ./get_helm.sh --version v3.3.1
-    - chmod 700 get_helm.sh
-    - ./get_helm.sh
-  when: inventory_hostname == "192.168.1.19"
-
-
+#- name: Variavel de acesso ao cluster
+#  command: "{{ item }}"
+#  with_items:
+#    - export KUBECONFIG=/home/admincluster/kube_config_cluster.yml
+#    - curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+#    - curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+#    - ./get_helm.sh --version v3.3.1
+#    - chmod 700 get_helm.sh
+#    - ./get_helm.sh
+  

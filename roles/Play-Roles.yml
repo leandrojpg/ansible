@@ -1,4 +1,5 @@
 - name: Executa as Roles
+  become: yes
   hosts: all
   gather_facts: no
   roles:

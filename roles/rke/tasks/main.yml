@@ -9,10 +9,49 @@
     - sysctl --system
   when: inventory_hostname != "admin"
 
+
+- name: Permite grupo Wheel sem senha
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    regexp: '^%wheel'
+    line: '%wheel ALL=(ALL) NOPASSWD: ALL'
+    validate: 'visudo -cf %s'
+
+
 - name: Adiciona usuario para administrar cluster
   user:
     name: admincluster
     comment: Admin k8s
+
+
+- name: Adiciona o usuario admincluster ao grupo Wheel
+  user: name=admincluster groups=wheel append=yes state=present createhome=yes
+
+
+#- name: "Add authorized keys"
+#  authorized_key:
+#    key: "{{ lookup('file', 'files/' 'id_rsa.pub') }}"
+
+
+
+- name: Autoriza o usuario admincluster a usar  a chave
+  authorized_key: user=admincluster key="{{item}}"
+  with_file:
+    - /home/admincluster/.ssh/id_rsa.pub
+
+
+
+#- name: Adiciona Usuario admincluster ao grupo sudoers.
+#  sudo: yes
+#  tasks:
+#    - name: Allow 'sudo' group to have passwordless sudo
+#      lineinfile:
+#        dest: /etc/sudoers
+#        state: present
+#        regexp: '^%sudo'
+#        line: '%sudo ALL=(ALL) NOPASSWD: ALL'
+
 
 - name: Define senha do usuario (Tem que ser um hash e preciso usar o python para gerar o Hash)
   user:
@@ -20,12 +59,12 @@
     comment: "Admin k8s"
     password: $6$INxDHuVqvGzKOB90$f2CjwN4jDwq1OLspYU2jhuY34aTOzvlWpejEftggwhaIG7hHgIc/ze.ohF3tu4Rxj77EmK9eo0CgurHrBZqTy0
 
-- name: Adiciona usuario sudoers
-  copy:
-    dest: "/etc/sudoers.d/admincluster"
-    content: |
-      admincluster ALL=(ALL:ALL) NOPASSWD: ALL
-  when: inventory_hostname != "admin"
+# name: Adiciona usuario sudoers
+# copy:
+#   dest: "/etc/sudoers.d/admincluster"
+#   content: |
+#     admincluster ALL=(ALL:ALL) NOPASSWD: ALL
+# when: inventory_hostname != "admin"
 
 
 - name: Atualiza SO de todos os Nodes
@@ -93,12 +132,12 @@
 
 
 
-- name: Cria chave ssh do admin do cluster (adminclsuter)
-  user:
-    name: admincluster
-    generate_ssh_key: yes
-    ssh_key_bits: 2048
-    ssh_key_file: .ssh/id_rsa
+#- name: Cria chave ssh do admin do cluster (adminclsuter)
+#  user:
+#    name: admincluster
+#    generate_ssh_key: yes
+#    ssh_key_bits: 2048
+#    ssh_key_file: .ssh/id_rsa
 
 
 - name: Instalando Docker
@@ -112,37 +151,20 @@
     groups: docker
     append: yes
   when: inventory_hostname != "admin"
-  sudo: yes
-  sudo_user: admincluster
-
-#  become: true
-#  become_user: "{{ my_user }}"
 
 
-- name: Adiciona Usuario admincluster ao grupo wheel
-  user:
-    name: admincluster
-    shell: /bin/bash
-    groups: wheel
-    append: yes
-#  become: true
-#  become_user: "{{ my_user }}"
-
-
-- name: Baixando o rke para subir o cluster
-  command: "{{ item }}"
-  with_items:
-    - wget -O rke https://github.com/rancher/rke/releases/download/v0.0.8-dev/rke_linux-amd64
-    -  chmod +x /usr/local/bin/rke
-  when: inventory_hostname == "admin"
+#- name: Baixando o rke para subir o cluster
+#  command: "{{ item }}"
+#  with_items:
+#    - wget -O rke https://github.com/rancher/rke/releases/download/v0.0.8-dev/rke_linux-amd64
+#    -  chmod +x /usr/local/bin/rke
+#  when: inventory_hostname == "admin"
 #  become: true
 #  become_user: "{{ my_user }}"
 
 - name: Cria o cluster
-  shell: /usr/local/bin/rke rke up --config ./rancher-cluster.yml
-  when: inventory_hostname == "admin"
-#  become: true
-#  become_user: "{{ my_user }}"
+  shell: /usr/local/bin/rke  up --config /home/admincluster/cluster.yml
+  when: inventory_hostname != "192.168.1.19"
 
 
 - name: Variavel de acesso ao cluster
@@ -154,8 +176,6 @@
     - ./get_helm.sh --version v3.3.1
     - chmod 700 get_helm.sh
     - ./get_helm.sh
-  when: inventory_hostname == "admin"
- # become: true
- # become_user: "{{ my_user }}"
+  when: inventory_hostname == "192.168.1.19"
 
 

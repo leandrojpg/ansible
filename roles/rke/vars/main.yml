@@ -2,8 +2,8 @@
 packages:
   - chrony
 
-#my_user:
-#  - admincluster
+users:
+  - admincluster
 
 nodes:
   - 192.168.1.19

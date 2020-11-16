@@ -145,6 +145,8 @@
 - name: Instalando Docker
   shell: curl https://releases.rancher.com/install-docker/18.09.sh | sh
   when: inventory_hostname != "192.168.1.19"
+  tags:
+  - docker
 
 - name: Adiciona Usuario admincluster ao grupo docker
   user:
@@ -163,11 +165,12 @@
 #  become_user: "{{ my_user }}"
 
 - name: Cria o cluster
-#  when: inventory_hostname == "192.168.1.19"
-  become: yes
-  run_once: true
-  delegate_to: 127.0.0.1
-  local_action: command chdir= rke  up --config /home/admincluster/cluster.yml
+  remote_user: admincluster
+#  become: yes
+  when: inventory_hostname == groups['admin'][0]
+  command: /usr/local/bin/rke up --config /etc/ansible/roles/cluster.yml 
+#ommand: bash -lc "cd /etc/ansible/roles/ && /usr/local/bin/rke  up --config /etc/ansible/roles/cluster.yml"
+  
 
 
 #- name: Variavel de acesso ao cluster

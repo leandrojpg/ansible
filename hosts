@@ -12,19 +12,19 @@
 
 ## green.example.com
 ## blue.example.com
-#[admin]
-#192.168.1.19 ansible_connection=ssh ansible_user=admincluster ansible_ssh_pass=102010
-
-#[nodes]
-#192.168.1.20 ansible_connection=ssh ansible_user=admincluster ansible_ssh_pass=102010
-#192.168.1.21 ansible_connection=ssh ansible_user=admincluster ansible_ssh_pass=102010
-#192.168.1.22 ansible_connection=ssh ansible_user=admincluster ansible_ssh_pass=102010
-192.168.1.19
+#localhost  ansible_connection=local ansible_user=admincluster ansible_ssh_pass=102010 ansible_ssh_private_key_file=/home/admincluster/.ssh/id_rsa.pub
+[all:vars]
+ansible_user=admincluster
+become=true
+[nodes]
 192.168.1.20
 192.168.1.21
+[master]
 192.168.1.22
-## 192.168.100.1
-## 192.168.100.10
+[admin]
+192.168.1.19
+#nsible_connection=ssh ansible_ssh_pass=102010 ansible_ssh_private_key_file=/home/admincluster/.ssh/id_rsa
+
 
 # Ex 2: A collection of hosts belonging to the 'webservers' group
 
@@ -33,6 +33,10 @@
 ## beta.example.org
 ## 192.168.1.100
 ## 192.168.1.110
+#92.168.1.20 ansible_connection=ssh ansible_user=admincluster ansible_ssh_pass=102010 ansible_ssh_private_key_file=/home/admincluster/.ssh/id_rsa.pub
+#92.168.1.21 ansible_connection=ssh ansible_user=admincluster ansible_ssh_pass=102010 ansible_ssh_private_key_file=/home/admincluster/.ssh/id_rsa.pub
+#92.168.1.22 ansible_connection=ssh ansible_user=admincluster ansible_ssh_pass=102010 ansible_ssh_private_key_file=/home/admincluster/.ssh/id_rsa.pub
+#
 
 # If you have multiple hosts following a pattern you can specify
 # them like this:

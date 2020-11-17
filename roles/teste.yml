@@ -1,0 +1,6 @@
+---
+- name: Cria o cluster
+  hosts: localhost
+  connection: local
+  tasks:
+    - shell: "/usr/local/bin/rke up --config /etc/ansible/roles/rke/cluster.yml"

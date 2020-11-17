@@ -1,6 +1,6 @@
 - name: Executa as Roles
-  become: yes
   hosts: all
+  strategy: debug
   gather_facts: no
   roles:
       - rke

@@ -1,6 +1,6 @@
 ---
 packages:
-  - chrony
+  - ntp
 
 users:
   - admincluster

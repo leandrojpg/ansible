@@ -1,0 +1,52 @@
+- name: Executa as tasks abaixo em todos os servidores incluso o bastion
+  hosts: all
+# become: admincluster 
+  gather_facts: no
+  tasks:
+    - name: Cria um diretorio oculto .ssh  no home do usuário admincluser.
+      file:
+        path: /home/admincluster/.ssh
+        state: directory
+        mode: 0644
+        owner: admincluster
+        group: admincluster
+        recurse: yes
+
+- name: Executa a geracao de chave no host local (Ansible)
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  tasks:
+    - shell: ssh-keygen -q -b 2048 -t rsa -N '' -C 'creating SSH' -f /home/admincluster/.ssh/id_rsa creates=/home/admincluster/.ssh/id_rsa
+#   - shell: sshpass -p '102010' ssh-copy-id admincluster@{{inventory_hostname}}
+   
+
+# name: Copia o arquivo de chave publica para todos os hosts
+# hosts: all
+# become: admincluster
+# gather_facts: yes
+# tasks:
+#   - name: Executa a task a partir do ansible somente.
+#     copy:
+#       src: /home/admincluster/.ssh/id_rsa.pub
+#       dest: /home/admincluster/.ssh/id_rsa.pub
+#       mode: "0644"
+#       owner: admincluster
+#       group: admincluster
+#
+# name: Store known hosts of 'all' the hosts in the inventory file
+# hosts: localhost
+# connection: local
+# vars:
+#   ssh_known_hosts_command: "ssh-keyscan -T 10"
+#   ssh_known_hosts_file: "{{ lookup('env','HOME') + '/.ssh/known_hosts' }}"
+#   ssh_known_hosts: "{{ groups['all'] }}"
+        
+
+
+    
+
+
+
+
+

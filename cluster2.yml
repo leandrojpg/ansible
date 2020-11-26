@@ -1,0 +1,26 @@
+---
+## Criado por Leandro Paulo
+## Data: 22/11/2020
+## Instruções de uso:
+## Executar esse script somente logado com o usuário "admincluster" criado pela outra playbook denominada "prepara_servers" que cria  o usuário e prepara todo o sistema alem de ser um requisito do rancher
+## Edite o arquivo /etc/ansible/hosts e deixe como no exemplo abaixo:
+#############################
+# [all:vars]
+# ansible_user=root
+# ansible_user=admincluster
+# become=true
+############################
+## Esteja logado no servidor do ansible como usuáruio admincluster e partir dele execute a playbook cria_cluster.yml
+## -- > su - admincluster
+## -- > ansible-playbook /etc/ansible/cria_cluster.yml < --
+## Em caso de erro com o node master, ceritifique que o usuario admincluster tenha sido criado e as definas permissoes no grupo whell
+
+- name: Cria o cluster
+  hosts: localhost
+  connection: local
+  tasks:
+    - shell: "/usr/local/bin/rke up --config /etc/ansible/cluster.yml"
+    
+    
+
+

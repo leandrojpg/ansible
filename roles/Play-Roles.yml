@@ -1,7 +1,9 @@
-- name: Executa as Roles
-  hosts: all
-  strategy: debug
-  gather_facts: no
-  roles:
-      - rke
+## Play que chama a role rke - Deve-se usar o become para criar o usuário admincluster nos servidores  -  sera executado inicialmente como root
+#- name: Executa as Roles
+#  hosts: all
+#  remote_user: admincluster
+#  become: yes
+#  gather_facts: no
+#  roles:
+#      - rke
 

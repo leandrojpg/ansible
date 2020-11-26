@@ -1,5 +1,16 @@
----
-- name: Cria o cluster
-  shell: "/usr/local/bin/rke up --config /etc/ansible/roles/rke/cluster.yml"
- 
-
+- name: Include needed tasks for each hosts 
+  hosts: localhost
+  connection: local
+  tasks:
+    - name: Cria usuario para administrar cluster
+      user: 
+        comment: "Admin do Cluster"
+        name: admincluster
+- name: Teste leo
+  hosts: localhost
+  connection: local
+  tasks:
+    - name: teste leo
+      user:
+        comment: "Admin do Cluster"
+        name: admincluster

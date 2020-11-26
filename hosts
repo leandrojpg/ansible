@@ -14,12 +14,12 @@
 ## blue.example.com
 #localhost  ansible_connection=local ansible_user=admincluster ansible_ssh_pass=102010 ansible_ssh_private_key_file=/home/admincluster/.ssh/id_rsa.pub
 [all:vars]
-ansible_user=admincluster
-become=true
+#ansible_user=root
+#ansible_user=admincluster
+#become=true
 [nodes]
 192.168.1.20
 192.168.1.21
-[master]
 192.168.1.22
 [admin]
 192.168.1.19

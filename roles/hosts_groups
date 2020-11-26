@@ -1,0 +1,15 @@
+#- hosts: admin
+#  remote_user: admincluster
+#  become: yes
+#  gather_facts: no
+#  roles:
+#    - rke
+
+#- name: Cria o cluster
+#   hosts: localhost
+#   remote_user: admincluster
+#   become: yes
+#   gather_facts: no
+#   connection: local
+#   tasks:
+#     - shell: "/usr/local/bin/rke up --config /etc/ansible/roles/rke/cluster.yml"

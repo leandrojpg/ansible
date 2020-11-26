@@ -1,2 +1,5 @@
----
-# handlers file for rke
+## Reinicia o serviço do NTP apos a atualizacao do arquivo
+- name: Reinicia o NTP
+  systemd:
+    name: restart ntp
+    state: restarted
